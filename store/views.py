@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Product, Collection, OrderItem
-from .serializers import ProductSerializer, CollectionSerailizer
+from .models import Product, Collection, OrderItem, Review
+from .serializers import ProductSerializer, CollectionSerailizer, ReviewSerializer
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
@@ -34,13 +34,17 @@ class CollectionViewSet(ModelViewSet):
             return Response({'error': 'Product cannot be deleted cause it is associated with order.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
 
-    # def DELETE(self, request, pk):
-    #     collection = get_object_or_404(Collection, pk=pk)
-    #     if collection.products.count() > 0:
-    #         return Response({"error": "Collection cannot be deleted cause it has some products in it."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    #     collection.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ReviewViewSet(ModelViewSet):
+
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(product_id = self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+        return {'product_id':self.kwargs['product_pk']}
 
 
 
